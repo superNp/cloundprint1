@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/cloundprint.iml" filepath="$PROJECT_DIR$/cloundprint.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-constants/cp-constants.iml" filepath="$PROJECT_DIR$/cp-constants/cp-constants.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-entity/cp-entity.iml" filepath="$PROJECT_DIR$/cp-entity/cp-entity.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-file/cp-file.iml" filepath="$PROJECT_DIR$/cp-file/cp-file.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-mkdir/cp-mkdir.iml" filepath="$PROJECT_DIR$/cp-mkdir/cp-mkdir.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-order/cp-order.iml" filepath="$PROJECT_DIR$/cp-order/cp-order.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-pay/cp-pay.iml" filepath="$PROJECT_DIR$/cp-pay/cp-pay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-sys/cp-sys.iml" filepath="$PROJECT_DIR$/cp-sys/cp-sys.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cp-util/cp-util.iml" filepath="$PROJECT_DIR$/cp-util/cp-util.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,6 @@
+wx:
+  pay:
+    appId:wx423f64adddb48cc9
+    mchId:1602818697
+    mchKey:12A23BC23s397b54gLMT6428Y9361DB7
+    keyPath:C:\test\WXCertUtil\cert\apiclient_cert.p12

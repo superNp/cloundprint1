@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="cp-constants" />
+        <module name="cp-entity" />
+        <module name="cp-file" />
+        <module name="cp-mkdir" />
+        <module name="cp-order" />
+        <module name="cp-pay" />
+        <module name="cp-sys" />
+        <module name="cp-util" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="cloundprint" target="1.8" />
+      <module name="cp-constants" target="1.8" />
+      <module name="cp-entity" target="1.8" />
+      <module name="cp-file" target="1.8" />
+      <module name="cp-mkdir" target="1.8" />
+      <module name="cp-order" target="1.8" />
+      <module name="cp-pay" target="1.8" />
+      <module name="cp-sys" target="1.8" />
+      <module name="cp-util" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cp-constants" options="-parameters" />
+      <module name="cp-entity" options="-parameters" />
+      <module name="cp-file" options="-parameters" />
+      <module name="cp-mkdir" options="-parameters" />
+      <module name="cp-order" options="-parameters" />
+      <module name="cp-pay" options="-parameters" />
+      <module name="cp-sys" options="-parameters" />
+      <module name="cp-util" options="-parameters" />
+    </option>
+  </component>
+</project>

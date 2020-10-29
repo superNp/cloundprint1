@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>支付测试</title>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script type="text/javascript" src="http://static.runoob.com/assets/qrcode/qrcode.min.js"></script>
+    <script src="js.layDate-v5.0.9/laydate/laydate.js"></script>
+    <script src="js/layer-v3.1.1/layer/layer.js"></script>
+    <script>
+        /* var appid = 'WX423f64adddb48cc9';//appid为公众号appid
+         var local = window.location.href ;//当前跳转路径
+         var code = getParam('code');//获取地址栏参数code
+         if (code === null || code === '') {
+             // 跳转至授权地址，该地址只支持微信浏览器打开
+             location.replace("https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + appid + "&redirect_uri=" + encodeURIComponent(local) + "&response_type=code&scope=snsapi_base#wechat_redirect")
+         }else{
+             getOpenId(code);//拿到了code 找后台换取openid
+         }
+         //为避免网页授权会刷新界面，ios微信浏览器会出现白条切换按钮会导致支付出错 ，建议将以上方法写在首页中，不要写在支付页面
+         getConfig();//授权方法应放在支付页面加载的时候。进入支付页面就执行授权
+         wx.chooseWXPay({  //此方法应放在调用后台统一下单接口成功后回调里面，接口返回  timeStamp，nonceStr，package，paySign等参数
+             timestamp: res.data.timeStamp,
+             nonceStr: res.data.nonceStr,
+             package: res.data.package,
+             signType: 'MD5',
+             paySign: res.data.paySign,
+             appId:res.data.appId,  //此参数可不用
+             success: function (r) {
+                 // 支付成功后的回调函数
+                 if (r.errMsg == "chooseWXPay:ok") {
+                     //支付成功
+                 } else {
+                     location.reload();//支付失败 刷新界面
+                 }
+             },
+             cancel: function(r) {
+                 //支付取消
+             }
+         });
+         //以下方法可以放在common.js中
+         //获取地址栏 指定参数名参数
+         function GetQueryString(name) {
+             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+             var r = window.location.search.substr(1).match(reg); //获取url中"?"符后的字符串并正则匹配
+             var context = "";
+             if (r != null)
+                 context = r[2];
+             reg = null;
+             r = null;
+             return context == null || context == "" || context == "undefined" ? "" : context;
+         }
+         function getOpenId(code) {//我们公司获取openid接口
+             $.ajax({
+                 type: "POST",
+                 url: window.baseurl+"/miniprogram/user/getOpenId?code="+code+"&type=2",//1 微信 2公众号
+                 cache: false,
+                 processData: false,
+                 contentType: false,
+                 dataType: "json",
+                 success: function (res) {
+                     if (res.msgCode==0) {//成功
+                         localStorage.setItem('openId',res.data.openid)//将openid存入缓存
+                     } else {
+                         // alert('openid获取失败')
+                     }
+                 },
+                 error: function (res) {
+
+                 },
+             })
+         }
+
+
+         function getConfig(){
+             //获取后台签名，向微信获取授权
+             $.ajax({
+                 type: "POST",
+                 url: window.baseurl+"/miniprogram/user/getTicket",
+                 data:{"url":location.href.split("#")[0]},
+                 dataType: "json",
+                 success: function (data) {
+                     if (data.msgCode==0) {//成功
+                         wxConfig(data.data.timestamp,data.data.nonceStr,data.data.signature)
+                     } else {
+
+                     }
+                 },
+                 error: function (res) {
+
+                 },
+
+             })
+         }
+         //获取微信授权
+         function wxConfig(Timestamp,NonceStr,Signature){
+             //通过config接口注入权限验证配置
+             wx.config({
+                 debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                 appId: 'wx840b32f985622d8e', // 必填，公众号的唯一标识
+                 timestamp: Timestamp, // 必填，生成签名的时间戳
+                 nonceStr: NonceStr, // 必填，生成签名的随机串
+                 signature: Signature,// 必填，签名
+                 jsApiList: ['chooseWXPay','scanQRCode'] // 必填，需要使用的JS接口列表 这里是使用的是微信支付接口
+             });
+             //通过ready接口处理成功验证
+             wx.ready(function(){
+                 console.log('ready接口处理成功验证')
+
+             });
+             //通过error接口处理失败验证
+             wx.error(function(res){
+                 console.log('error接口处理失败验证')
+             });
+         }*/
+        /*
+        * 1、检查是否存在未支付的订单（未生成支付订单或已生成订单未支付），有则进入步骤3
+        * 2、个人识别号、起始时间 用来生成本地订单
+        * 3、用户进入支付页面，生成费用明细。停车时间起始时间、当前时间、总耗时、总费用
+        * 4、用户确认订单，发起支付请求，生成微信支付订单，返回支付二维码
+        * 5、查询用户当前订单状态，成功则跳转成功页面，失败则返回提醒
+        * 6、完成订单，修改本地状态代码
+        * */
+        var qrcodeObj;
+        var outTradeNo;//订单编号
+        var timgFlag;
+        var totalFee=6;
+        var body = "";
+        var endtime;
+        var startTime;
+        var payUrl;
+        $(function(){
+            initOrder();//查询用户是否有未完成的订单
+        });
+        //初始化检查用户是否有未完成的订单
+        function initOrder(){
+            var rtn = {};
+            rtn.userid="1500000011";
+            var data = queryData("/queryOrder",rtn);
+            debugger;
+            if(data!=null){
+                //有支付地址时直接生成付款二维码
+                if(data.code_url!=null){
+                    dataCheck(data);
+                }
+                //赋值停车时间
+                if(data.starttime!=null){
+                    startTime =data.starttime
+                    $("#starttime").val(startTime);
+                }
+                if(data.endtime!=null){
+                    endtime =data.endtime
+                    $("#endtime").val(endtime);
+                }else{
+                    timgFlag = setInterval(setTime,1000);
+                }
+                //已生成价格时赋值
+                if(data.totalFee!=null){
+                    totalFee = data.totalFee;
+                    $("#totalFee").val(totalFee);
+                }
+                //订单号
+                if(data.outtradeno!=null){
+                    outTradeNo = data.outtradeno;
+                    $("#outTradeNo").val(outTradeNo);
+                }
+
+            }else{
+                alert("未查询到您的订单");
+            }
+        }
+        //创建订单，向微信提交订单，获得付款地址
+        function createorder() {
+            var rtn = {};
+            clearInterval(timgFlag);//确认下单停止计时
+            rtn.userid="1500000011";
+            rtn.outTradeNo = outTradeNo;//订单号
+            rtn.endtime = $("#endtime").val()+"";//计时时间起始
+            queryFree(rtn);
+            rtn.totalFee = totalFee;//价格
+            rtn.body=$("#body").val();
+            debugger;
+            var data = queryData("/createorder",rtn);
+            dataCheck(data);
+        }
+        function queryFree(rtn){
+            var data = queryData("/queryOrderTime",rtn);
+            if(data.totalfree==null){
+                //未获取金额，应刷新页面重试
+                return false;
+            }
+            totalFee = data.totalfree;
+        }
+        function  dataCheck(data){
+            if(data.return_code=='SUCCESS'){
+                if(data.result_code=="SUCCESS"){
+                    payUrl = data.code_url;
+                    //获取有效地址后生成二维码
+                    if(payUrl!=''&&payUrl!=undefined){
+                        ewm(payUrl);
+                    }
+                    orderStatus();
+                }else{
+                    alert(data.err_code_des);
+                }
+            }else{
+                alert(data.return_msg);
+            }
+        }
+
+        //查询订单状态，交易成功关闭订单
+        function orderStatus() {
+            var siv = setInterval(function(){
+                var rtn = {};
+                rtn.outTradeNo=outTradeNo;
+                var data = queryData("/PayStatus",rtn);
+                if(data.trade_state=='SUCCESS'){
+                    alert("支付成功");
+                    clearInterval(siv); //成功后，停止扫描咨询
+                }
+            },3000)
+        }
+        //支付成功
+        function orderOk(rtn){
+
+        }
+        //支付遇到问题
+        function payFail(rtn){
+
+        }
+
+        //
+        function queryData(url,param){
+            var result;
+            try {
+                $.ajax({
+                    type : 'POST',
+                    url : url,
+                    data : param ,
+                    async : false,
+                    globle : false,
+                    dataType : "json",
+                    success : function(data) {
+                        result = data;
+                    }
+                });
+            } catch (e) {
+            }
+            return result;
+        }
+        function ewm(payUrl){
+            $("#code").html("");
+            var qrcode = document.getElementById('code');
+            /*可以配置二维码的宽高等*/
+            qrcodeObj = new QRCode(qrcode, {
+                text: payUrl,
+                width: 256,
+                height: 256,
+                colorDark : '#000000', //前景色
+                colorLight : '#ffffff'  //背景色
+            });
+        }
+
+        function setTime() {
+            laydate.render({
+                elem: '#endtime'
+                ,type: 'datetime',
+                value:new Date()
+            });
+        }
+    function checkState() {
+        layui.use(['jquery','layer'], function(){
+            var $= layui.$;
+            var out_trade_no= $("#out_trade_no").val();
+            //console.log(out_trade_no);
+            //隔3秒钟 查询订单结果一次
+            var siv = setInterval(function(){
+                $.ajax({
+                    type:"post",
+                    //method:'post',
+                    dataType:'json',
+                    url:"/PayStation",
+                    data:{"out_trade_no":out_trade_no},
+                    success:function(data){
+                        console.log(data);
+                        if(data.return_code == 1){
+                            qrcodeObj.clear;
+                            $("body").append('<div style="font-size: 36px;text-align: center;color: #5FB878;"><i class="layui-icon layui-icon-ok-circle" style="font-size: 36px; color:#5FB878;"></i>支付成功</div>')
+                            clearInterval(siv); //成功后，停止扫描咨询
+                        }
+                    }
+                })
+            },3000)
+        })
+    }
+    /*生成随机订单号*/
+        function random_No(j) {
+            var random_no = "";
+            for (var i = 0; i < j; i++) //j位随机数，用以加在时间戳后面。
+            {
+                random_no += Math.floor(Math.random() * 10);
+            }
+            random_no = new Date().getTime() + random_no;
+            return "dddb48cc"+random_no;
+        };
+        function getQueryMap() {
+            var rtnMap = {};
+            var iptAry = $(".layui-col-space5 input");
+            iptAry.each(function() {
+                var input = $(this);
+                var inputclass = $(this).attr("class")==undefined?"":$(this).attr("class");
+                var inputtype = $(this).attr("type")==undefined?"":$(this).attr("type");
+                if(inputclass.indexOf("easyui-combotree") > -1){
+                    var s= $("#"+input.attr("id")).combotree('getValues');
+                    if(s!=null){
+                        var hyn="";
+                        for ( var int = 0; int < s.length; int++) {
+                            if(!isEmpty(s[int])){
+                                hyn+=s[int]+",";
+                            }
+                        }
+                        hyn=hyn.substring(0, hyn.length-1);
+                        rtnMap[input.attr("id")] = hyn;
+                    }
+                }else if(inputtype.indexOf("checkbox") > -1 || inputtype.indexOf("raido") > -1){
+
+                    if(document.getElementById(input.attr("id")).checked){
+                        rtnMap[input.attr("id")] = $('#' + input.attr("id")).val();
+                    }else{
+                        if(input.attr("id").indexOf("jqg_wdglgridtable") <= -1 && input.attr("id").indexOf("cb_wdglgridtable") <= -1){
+                            rtnMap[input.attr("id")] = "";
+                        }
+                    }
+                }else{
+                    rtnMap[input.attr("id")] = $('#' + input.attr("id")).val();
+                }
+            });
+            var selecttag = $(".layui-col-space5 select");
+            selecttag.each(function() {
+                var input = $(this);
+                var inputclass = $(this).attr("class")==undefined?"":$(this).attr("class");
+                if(inputclass.indexOf("easyui-combotree") > -1){
+                    var s= $("#"+input.attr("id")).combotree('getValues');
+                    if(s!=null){
+                        var hyn="";
+                        for ( var int = 0; int < s.length; int++) {
+                            if(!isEmpty(s[int])){
+                                hyn+=s[int]+",";
+                            }
+                        }
+                        hyn=hyn.substring(0, hyn.length-1);
+                        rtnMap[input.attr("id")] = hyn;
+                    }
+                }else{
+                    rtnMap[input.attr("id")] = $('#' + input.attr("id")).val();
+                }
+            });
+            return rtnMap;
+
+        }
+    </script>
+
+
+</head>
+<body>
+<div>
+    商品名称:<input type="text" id="body" value="扫码停车" disabled/><br/>
+    商品价格:<input type="text" id="totalFee" value="6" disabled>6元每小时，不足半小时按半小时计算，大于半小时按一小时计算</input><br/>
+    停车时间:<input type="text" id="starttime"disabled/><br/>
+    当前时间:<input type="text" id="endtime"disabled/><br/>
+    订单编号:<input type="text" id="outTradeNo" disabled/><br/>
+</div>
+<div>
+<p><b>扫码完成支付</b></p>
+<div id="code"></div>
+<div>
+    <button title="确认下单" onclick="createorder()">确认下单</button>
+    <button title="支付成功" onclick="checkState()">支付成功</button>
+    <button title="支付遇到问题"onclick="checkState()" >支付遇到问题</button>
+</div>
+</div>
+</body>
+</html>

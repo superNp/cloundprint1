@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jinqian.pay.dao.WXPayMapper">
+    <select id="queryOrder"  resultType="java.util.Map">
+        select t.outtradeno,DATE_FORMAT(starttime,'%Y-%m-%d %H:%i:%s')starttime,t.code_url,round(timestampdiff(MINUTE,starttime,endtime)/60*6,2) totalFee,DATE_FORMAT(endtime,'%Y-%m-%d %H:%i:%s')endtime from wx_order t where userid= #{userid,jdbcType=VARCHAR} and zfbz='N' and yxbz='Y'
+    </select>
+    <select id="queryOrderTime" resultType="java.util.Map">
+        select round(timestampdiff(MINUTE,starttime,STR_TO_DATE(#{endtime},'%Y-%m-%d %H:%i:%s'))/60*6,2)totalfree from wx_order WHERE outtradeno=#{outtradeno}
+    </select>
+    <update id="createOrder" >
+         UPDATE wx_order SET totalfree = #{totalfree} ,endtime=STR_TO_DATE(#{endtime},'%Y-%m-%d %H:%i:%s'),CODE_URL = #{code_url} ,prepay_id=#{prepay_id} where outtradeno=#{outtradeno}
+    </update>
+    <update id="updateOrder" >
+        update wx_order set entime=STR_TO_DATE('#{endtime}','%Y-%m-%d %H:%i:%s'),paytime=STR_TO_DATE('#{endtime}','%Y-%m-%d %H:%i:%s'),zfbz='#{zfbz}',yxbz='#{yxbz}' where outtradeno='#{outtradeno}'
+    </update>
+
+</mapper>
